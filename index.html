@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akistel Household Store - Household Items, Handbags & Slippers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#fff7ed', 100: '#ffedd5', 500: '#ff6b00', 600: '#e65100', 700: '#c2410c' },
+                        charcoal: '#1a1a1a',
+                        softbg: '#f8f9fa'
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body id="top" class="bg-white text-charcoal flex flex-col min-h-screen">
+
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="bg-charcoal text-white text-[11px] sm:text-sm py-2 px-4 text-center font-medium flex flex-col sm:flex-row justify-between items-center gap-1">
+        <span><i class="fa-solid fa-location-dot text-brand-500 mr-2"></i> 28 Abang Asang by ETA Agbor, Calabar</span>
+        <span>✨ Welcome to Akistel Household Store</span>
+        <a href="https://wa.me/2348125847101" target="_blank" class="flex items-center text-brand-500 hover:text-white transition">
+            <i class="fa-brands fa-whatsapp mr-1"></i> Hotline: +234 812 584 7101
+        </a>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToTopAndReset()">
+                <div class="w-11 h-11 bg-brand-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-brand-500/30">
+                    A
+                </div>
+                <div>
+                    <span class="text-xl sm:text-2xl font-black tracking-tight text-charcoal block leading-none">AKISTEL</span>
+                    <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-brand-500 block mt-1">Household Store</span>
+                </div>
+            </div>
+
+            <div class="hidden lg:flex flex-1 max-w-md mx-8 relative">
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search items, bags, hair kits, slippers..." 
+                       class="w-full bg-gray-50 border border-gray-200 rounded-full py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-brand-500">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400"></i>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleCartDrawer()" class="relative bg-brand-50 hover:bg-brand-100 text-brand-600 p-3 rounded-full transition">
+                    <i class="fa-solid fa-bag-shopping text-xl"></i>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 bg-brand-500 text-white text-xs font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative bg-cover bg-center bg-no-repeat py-20 lg:py-32 text-white" style="background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1920&q=80');">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+            <span class="inline-block bg-brand-500/30 border border-brand-500/50 text-brand-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                Quality Household Goods & Fashion
+            </span>
+            <h1 class="text-3xl sm:text-6xl font-black tracking-tight leading-tight">
+                Welcome to <span class="text-brand-500">Akistel Household Store</span>
+            </h1>
+            <p class="text-gray-200 text-sm sm:text-lg max-w-2xl mx-auto font-normal">
+                Your premier store for household items, hair kits, content gear, exercise tools, stylish handbags, footwear, and gift ideas. Located at 28 Abang Asang by ETA Agbor, Calabar.
+            </p>
+            <div>
+                <a href="#catalog" class="inline-block bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl transition transform hover:-translate-y-0.5">
+                    Shop Catalog Now <i class="fa-solid fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATALOG SECTION -->
+    <section id="catalog" class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 w-full">
+        <div class="text-center mb-6">
+            <h2 id="catalogTitle" class="text-2xl sm:text-4xl font-extrabold text-charcoal">All Store Items</h2>
+        </div>
+        
+        <!-- Top Category Bar -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar scroll-smooth" id="categoryBar"></div>
+
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-charcoal text-white pt-16 pb-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div>
+                <h3 class="text-sm font-extrabold uppercase tracking-wider text-brand-500 mb-4 border-b border-gray-800 pb-2">Browse Store Categories</h3>
+                <div id="footerCategoryBar" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center border-t border-gray-800 pt-8">
+                <div>
+                    <div class="flex items-center gap-3 cursor-pointer mb-2" onclick="scrollToTopAndReset()">
+                        <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white font-black text-lg">A</div>
+                        <span class="text-lg font-black tracking-tight text-white">AKISTEL HOUSEHOLD STORE</span>
+                    </div>
+                    <p class="text-xs text-gray-400">28 Abang Asang by ETA Agbor, Calabar</p>
+                </div>
+
+                <div class="flex justify-start md:justify-center gap-3">
+                    <a href="https://wa.me/2348125847101" target="_blank" class="w-10 h-10 bg-white/10 hover:bg-emerald-600 rounded-full flex items-center justify-center transition text-white">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                    </a>
+                    <a href="https://instagram.com" target="_blank" class="w-10 h-10 bg-white/15 hover:bg-pink-600 rounded-full flex items-center justify-center transition text-white">
+                        <i class="fa-brands fa-instagram text-lg"></i>
+                    </a>
+                    <a href="https://facebook.com" target="_blank" class="w-10 h-10 bg-white/10 hover:bg-blue-600 rounded-full flex items-center justify-center transition text-white">
+                        <i class="fa-brands fa-facebook-f text-lg"></i>
+                    </a>
+                    <a href="https://tiktok.com" target="_blank" class="w-10 h-10 bg-white/10 hover:bg-black border border-gray-700 rounded-full flex items-center justify-center transition text-white">
+                        <i class="fa-brands fa-tiktok text-lg"></i>
+                    </a>
+                </div>
+
+                <div class="text-right md:text-right">
+                    <a href="/admin" target="_blank" class="inline-flex items-center gap-1 text-brand-500 hover:text-white font-bold text-xs bg-white/5 px-3.5 py-2 rounded-lg transition">
+                        <i class="fa-solid fa-lock text-[10px]"></i> Admin Portal
+                    </a>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800/60 pt-6 text-center text-xs text-gray-500">
+                <p>&copy; 2026 Akistel Household Store. All rights reserved. Hotline: +234 812 584 7101</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CART DRAWER -->
+    <div id="cartOverlay" class="fixed inset-0 bg-black/60 z-50 opacity-0 pointer-events-none transition-opacity duration-300" onclick="toggleCartDrawer()"></div>
+    <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:max-w-md bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 bg-charcoal text-white flex items-center justify-between">
+            <h3 class="font-bold text-lg">Your Cart (<span id="drawerItemCount">0</span>)</h3>
+            <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-white text-xl p-2"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+        <div class="p-4 border-t bg-gray-50 space-y-3">
+            <div class="flex justify-between font-black text-lg">
+                <span>Total:</span>
+                <span id="cartTotal" class="text-brand-600">₦0.00</span>
+            </div>
+            <input type="text" id="customerName" placeholder="Full Name *" class="w-full text-xs p-3 border rounded-lg">
+            <input type="text" id="customerAddress" placeholder="Delivery Address / City *" class="w-full text-xs p-3 border rounded-lg">
+            <button onclick="checkoutViaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Checkout via WhatsApp (+234 812 584 7101)
+            </button>
+        </div>
+    </div>
+
+    <!-- CUSTOMER GALLERY MODAL -->
+    <div id="customerImageModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden" onclick="closeCustomerImageModal()">
+        <div class="relative max-w-3xl max-h-[90vh] bg-white p-4 rounded-3xl shadow-2xl text-center space-y-4" onclick="event.stopPropagation()">
+            <button onclick="closeCustomerImageModal()" class="absolute -top-3 -right-3 w-9 h-9 bg-charcoal text-white rounded-full flex items-center justify-center font-bold hover:bg-brand-500 transition shadow-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="customerModalImg" src="" alt="Gallery Preview" class="max-w-full max-h-[60vh] object-contain rounded-2xl mx-auto shadow">
+            <h3 id="customerModalTitle" class="text-base sm:text-lg font-black text-charcoal"></h3>
+            <div id="customerModalThumbnails" class="flex justify-center gap-2 overflow-x-auto pb-2"></div>
+        </div>
+    </div>
+
+    <script>
+        let CATALOG = [];
+        let CATEGORIES = [
+            { id: 'all', name: 'All Items', icon: 'fa-cubes' },
+            { id: 'household', name: 'Household Items', icon: 'fa-house' },
+            { id: 'hairkits', name: 'Hair Kits', icon: 'fa-spray-can-sparkles' },
+            { id: 'contentkits', name: 'Content Kits', icon: 'fa-video' },
+            { id: 'exercisekits', name: 'Exercise Kits', icon: 'fa-dumbbell' },
+            { id: 'skincare', name: 'Skin Care Kits', icon: 'fa-pump-soap' },
+            { id: 'giftideas', name: 'Gift Ideas', icon: 'fa-gift' },
+            { id: 'handbags', name: 'Hand Bags', icon: 'fa-bag-shopping' },
+            { id: 'slippers', name: 'Slippers', icon: 'fa-shoe-prints' },
+            { id: 'wedge', name: 'Wedge', icon: 'fa-shoe-prints' },
+            { id: 'sandals', name: 'Sandals', icon: 'fa-shoe-prints' }
+        ];
+
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let cart = [];
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/products');
+                const result = await res.json();
+                if (result.success) CATALOG = result.data;
+            } catch (err) {
+                console.error("Failed to load products from server API", err);
+            }
+            renderCategoryBars();
+            renderProducts();
+            updateCartUI();
+        });
+
+        function scrollToTopAndReset() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            filterByCategory('all');
+        }
+
+        function renderCategoryBars() {
+            const html = CATEGORIES.map(cat => `
+                <button onclick="filterByCategory('${cat.id}')" 
+                        class="px-4 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition flex items-center gap-2 border ${
+                            activeCategory === cat.id ? 'bg-brand-500 text-white border-brand-500 shadow-md' : 'bg-white text-gray-700 border-gray-200'
+                        }">
+                    <i class="fa-solid ${cat.icon}"></i><span>${cat.name}</span>
+                </button>
+            `).join('');
+
+            const footerHtml = CATEGORIES.map(cat => `
+                <button onclick="filterAndScrollToCatalog('${cat.id}')" 
+                        class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border ${
+                            activeCategory === cat.id ? 'bg-brand-500 text-white border-brand-500 shadow-md' : 'bg-white/5 text-gray-300 border-gray-700 hover:bg-white/10'
+                        }">
+                    <i class="fa-solid ${cat.icon}"></i><span>${cat.name}</span>
+                </button>
+            `).join('');
+
+            document.getElementById('categoryBar').innerHTML = html;
+            document.getElementById('footerCategoryBar').innerHTML = footerHtml;
+        }
+
+        function filterAndScrollToCatalog(id) {
+            filterByCategory(id);
+            document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function filterByCategory(id) {
+            activeCategory = id;
+            renderCategoryBars();
+            renderProducts();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const titleElem = document.getElementById('catalogTitle');
+            
+            const currentCatObj = CATEGORIES.find(c => c.id === activeCategory);
+            titleElem.innerText = currentCatObj ? currentCatObj.name : 'Store Catalog';
+
+            const filtered = CATALOG.filter(item => {
+                return (activeCategory === 'all' || item.category === activeCategory) && item.name.toLowerCase().includes(searchQuery);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-sm">No items found matching your filter or search.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(product => {
+                const imgList = product.images && product.images.length > 0 ? product.images : [product.img];
+                const primaryImg = imgList[0];
+
+                return `
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition overflow-hidden flex flex-col group">
+                        <div class="relative h-40 bg-gray-100 overflow-hidden cursor-pointer" onclick="openCustomerImageModal(${JSON.stringify(imgList).replace(/"/g, '&quot;')}, 0, '${product.name.replace(/'/g, "\\'")}')">
+                            <img src="${primaryImg}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" title="Click to view photos">
+                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
+                                <i class="fa-solid fa-expand"></i> View (${imgList.length} Photos)
+                            </div>
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <h3 class="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2">${product.name}</h3>
+                            <div class="mt-3 pt-2.5 border-t flex items-center justify-between">
+                                <span class="font-black text-brand-600 text-xs sm:text-base">${product.price === 0 ? 'Price not stated' : '₦' + product.price.toLocaleString()}</span>
+                                <button onclick="addToCart('${product.id}')" class="bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white p-2 rounded-xl transition">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openCustomerImageModal(imagesArray, activeIndex, imgTitle) {
+            window.currentCustImages = imagesArray;
+            window.currentCustIndex = activeIndex;
+            updateCustomerModalDisplay(imgTitle);
+            document.getElementById('customerImageModal').classList.remove('hidden');
+        }
+
+        function updateCustomerModalDisplay(imgTitle) {
+            const images = window.currentCustImages;
+            const idx = window.currentCustIndex;
+            document.getElementById('customerModalImg').src = images[idx];
+            document.getElementById('customerModalTitle').innerText = `${imgTitle} (Photo ${idx + 1} of ${images.length})`;
+            
+            document.getElementById('customerModalThumbnails').innerHTML = images.map((img, i) => `
+                <img src="${img}" onclick="window.currentCustIndex = ${i}; updateCustomerModalDisplay('${imgTitle}')" 
+                     class="w-14 h-14 object-cover rounded-xl border-2 cursor-pointer transition ${i === idx ? 'border-brand-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
+            `).join('');
+        }
+
+        function closeCustomerImageModal() {
+            document.getElementById('customerImageModal').classList.add('hidden');
+        }
+
+        function addToCart(id) {
+            const product = CATALOG.find(p => p.id === id);
+            if (!product) return;
+            const existing = cart.find(item => item.id === id);
+            if (existing) existing.qty += 1;
+            else cart.push({ ...product, qty: 1 });
+            updateCartUI();
+            toggleCartDrawer(true);
+        }
+
+        function updateQuantity(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('cartBadge').innerText = totalItems;
+            document.getElementById('drawerItemCount').innerText = totalItems;
+            document.getElementById('cartTotal').innerText = `₦${totalAmount.toLocaleString()}`;
+
+            const container = document.getElementById('cartItemsContainer');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-400 py-12 text-sm">Your cart is empty</p>`;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border">
+                        <img src="${item.img}" class="w-12 h-12 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold line-clamp-1">${item.name}</h4>
+                            <span class="text-xs font-black text-brand-600">₦${(item.price * item.qty).toLocaleString()}</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <button onclick="updateQuantity('${item.id}', -1)" class="w-5 h-5 bg-white border rounded text-xs font-bold">-</button>
+                                <span class="text-xs font-bold">${item.qty}</span>
+                                <button onclick="updateQuantity('${item.id}', 1)" class="w-5 h-5 bg-white border rounded text-xs font-bold">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function toggleCartDrawer(forceOpen = false) {
+            const drawer = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('cartOverlay');
+            if (forceOpen || drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        async function checkoutViaWhatsApp() {
+            if (cart.length === 0) return alert('Cart is empty');
+            const customerName = document.getElementById('customerName').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+            if (!customerName || !address) return alert('Please enter your name and address.');
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            try {
+                const res = await fetch('/api/orders', {
+                    model: 'POST',
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerName, address, items: cart, totalAmount })
+                });
+                const result = await res.json();
+                if (result.success && result.whatsappUrl) {
+                    window.open(result.whatsappUrl, '_blank');
+                    cart = [];
+                    updateCartUI();
+                    toggleCartDrawer();
+                }
+            } catch (err) {
+                alert('Could not complete order. Make sure your server is running.');
+            }
+        }
+    </script>
+</body>
+</html>
