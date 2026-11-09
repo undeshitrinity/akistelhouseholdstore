@@ -5,6 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
+// 1. Import Cloudinary Packages
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -14,19 +18,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.use(express.static(__dirname));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Configure Multer for local multi-image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, 'img-' + Date.now() + '-' + Math.round(Math.random() * 1000) + path.extname(file.originalname));
+// 2. Configure Cloudinary Credentials
+// (Sign up free at https://cloudinary.com to get these 3 keys from your dashboard)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'YOUR_CLOUD_NAME',
+  api_key: process.env.CLOUDINARY_API_KEY || 'YOUR_API_KEY',
+  api_secret: process.env.CLOUDINARY_API_SECRET || 'YOUR_API_SECRET'
+});
+
+// 3. Configure Multer to upload directly to Cloudinary instead of local folder
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'akistel_household_products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
   }
 });
 const upload = multer({ storage: storage });
@@ -56,17 +62,17 @@ app.get('/api/products', (req, res) => {
   res.json({ success: true, count: db.products.length, data: db.products });
 });
 
-// ADD NEW PRODUCT API WITH MULTI-IMAGE UPLOAD
+// ADD NEW PRODUCT API WITH CLOUDINARY MULTI-IMAGE UPLOAD
 app.post('/api/products', upload.array('imageFiles', 5), (req, res) => {
   const { name, category, price } = req.body;
   if (!name || !category || price === undefined) {
     return res.status(400).json({ success: false, message: 'Please provide all required fields' });
   }
 
-  // Collect uploaded file paths into an array
+  // Cloudinary returns full secure HTTPS image URLs in file.path
   let images = [];
   if (req.files && req.files.length > 0) {
-    images = req.files.map(file => `/uploads/${file.filename}`);
+    images = req.files.map(file => file.path);
   }
 
   const db = readDB();
@@ -76,8 +82,8 @@ app.post('/api/products', upload.array('imageFiles', 5), (req, res) => {
     category,
     price: Number(price),
     inStock: true,
-    img: images[0] || '', // Primary image fallback
-    images: images       // Array of all uploaded photos
+    img: images[0] || '', // Primary Cloudinary HTTPS URL
+    images: images       // Array of all uploaded Cloudinary HTTPS URLs
   };
 
   db.products.push(newProduct);
@@ -85,7 +91,7 @@ app.post('/api/products', upload.array('imageFiles', 5), (req, res) => {
   res.status(201).json({ success: true, message: 'Product added successfully', product: newProduct });
 });
 
-// UPDATE PRODUCT API WITH MULTI-IMAGE UPLOAD
+// UPDATE PRODUCT API WITH CLOUDINARY MULTI-IMAGE UPLOAD
 app.put('/api/products/:id', upload.array('imageFiles', 5), (req, res) => {
   const { id } = req.params;
   const { price, name } = req.body;
@@ -100,7 +106,7 @@ app.put('/api/products/:id', upload.array('imageFiles', 5), (req, res) => {
   if (name !== undefined) db.products[productIndex].name = name;
 
   if (req.files && req.files.length > 0) {
-    const newImages = req.files.map(file => `/uploads/${file.filename}`);
+    const newImages = req.files.map(file => file.path);
     db.products[productIndex].images = newImages;
     db.products[productIndex].img = newImages[0];
   }
