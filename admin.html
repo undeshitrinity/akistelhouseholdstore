@@ -27,10 +27,10 @@
             </div>
             <div>
                 <h2 class="text-2xl font-black text-charcoal">Admin Access Required</h2>
-                <p class="text-xs text-gray-500 mt-1">Enter PIN to manage store catalog and view orders.</p>
+                <p class="text-xs text-gray-500 mt-1">Enter PIN to manage store catalog, inventory, and orders.</p>
             </div>
             <form onsubmit="verifyPin(event)" class="space-y-4">
-                <input type="password" id="adminPinInput" required maxlength="4" placeholder="Enter PIN (0000)" 
+                <input type="password" id="adminPinInput" required maxlength="4" placeholder="Enter PIN (2403)" 
                        class="w-full text-center tracking-widest text-2xl font-bold bg-gray-50 border rounded-xl p-3.5 focus:outline-none focus:border-brand-500">
                 <p id="loginError" class="text-xs text-red-500 hidden font-semibold">Incorrect PIN.</p>
                 <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow-lg">Unlock Dashboard</button>
@@ -45,7 +45,7 @@
             <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center font-black text-xl text-white">A</div>
             <div>
                 <h1 class="font-bold text-lg leading-none">AKISTEL HOUSEHOLD STORE</h1>
-                <span class="text-xs text-brand-500 font-semibold uppercase">Admin Management Portal</span>
+                <span class="text-xs text-brand-500 font-semibold uppercase">Admin & In-Store Management Portal</span>
             </div>
         </div>
         <button onclick="lockDashboard()" class="bg-white/10 hover:bg-white/20 text-gray-300 text-xs font-bold px-3 py-2 rounded-lg transition"><i class="fa-solid fa-lock mr-1"></i> Lock</button>
@@ -54,40 +54,97 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
         
         <!-- STATS CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Available Items</span>
-                    <h3 id="totalProductsCount" class="text-3xl font-black text-charcoal mt-1">0</h3>
+                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Total Products</span>
+                    <h3 id="statTotalProducts" class="text-3xl font-black text-charcoal mt-1">0</h3>
                 </div>
-                <div class="w-12 h-12 bg-orange-50 text-brand-500 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                </div>
+                <div class="w-12 h-12 bg-orange-50 text-brand-500 rounded-xl flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-boxes-stacked"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Total Orders Placed</span>
-                    <h3 id="totalOrdersCount" class="text-3xl font-black text-charcoal mt-1">0</h3>
+                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Online Orders</span>
+                    <h3 id="statOnlineOrders" class="text-3xl font-black text-charcoal mt-1">0</h3>
                 </div>
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-bag-shopping"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Consultation Inquiries</span>
-                    <h3 id="totalConsultationsCount" class="text-3xl font-black text-charcoal mt-1">0</h3>
+                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">In-Store Orders</span>
+                    <h3 id="statInStoreOrders" class="text-3xl font-black text-charcoal mt-1">0</h3>
                 </div>
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-headset"></i>
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-cash-register"></i></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Total Sales (₦)</span>
+                    <h3 id="statTotalSales" class="text-2xl font-black text-charcoal mt-1">₦0</h3>
+                </div>
+                <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-wallet"></i></div>
+            </div>
+        </div>
+
+        <!-- IN-STORE WALK-IN ORDER PANEL SECTION -->
+        <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-6 border-brand-500/50">
+            <div class="flex justify-between items-center border-b pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal"><i class="fa-solid fa-cash-register text-brand-500 mr-2"></i> In-Store / Walk-In Order Panel</h2>
+                    <p class="text-xs text-gray-500">Record physical shop sales directly. Automatically updates main inventory.</p>
                 </div>
             </div>
+            <form onsubmit="createInStoreOrder(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-600">Customer Name *</label>
+                        <input type="text" id="walkInName" required placeholder="Walk-in Customer" class="w-full text-xs p-3 border rounded-xl mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-600">Customer Phone Number</label>
+                        <input type="tel" id="walkInPhone" placeholder="Optional" class="w-full text-xs p-3 border rounded-xl mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-600">Payment Method *</label>
+                        <select id="walkInPayment" class="w-full text-xs p-3 border rounded-xl mt-1">
+                            <option value="Cash">Cash</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="POS">POS</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="border rounded-2xl p-4 bg-gray-50 space-y-3">
+                    <h3 class="text-xs font-extrabold uppercase text-gray-600">Select Products & Quantities for Walk-In Sale</h3>
+                    <div id="walkInItemsList" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                    <button type="button" onclick="addWalkInItemRow()" class="text-xs font-bold text-brand-600 hover:text-brand-700">+ Add Another Item</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                    <div>
+                        <label class="text-xs font-bold text-gray-600">Order Status *</label>
+                        <select id="walkInStatus" class="w-full text-xs p-3 border rounded-xl mt-1 font-bold text-emerald-600">
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-600">Order Notes</label>
+                        <input type="text" id="walkInNotes" placeholder="Optional notes" class="w-full text-xs p-3 border rounded-xl mt-1">
+                    </div>
+                    <div class="text-right sm:pt-4">
+                        <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white font-bold px-6 py-3.5 rounded-xl text-xs transition shadow-lg w-full sm:w-auto">
+                            Complete Walk-In Order
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <!-- ADD NEW PRODUCT FORM -->
         <div class="bg-white rounded-2xl shadow-sm border p-6">
-            <h2 class="text-lg font-bold text-charcoal mb-4">Add New Item to Catalog (Select 3+ Photos)</h2>
-            <form onsubmit="addNewProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+            <h2 class="text-lg font-bold text-charcoal mb-4">Add New Item to Catalog & Inventory</h2>
+            <form onsubmit="addNewProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-center">
                 <input type="text" id="newProdName" required placeholder="Item Name *" class="text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
                 <select id="newProdCategory" class="text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
                     <option value="household">Household Items</option>
@@ -102,20 +159,21 @@
                     <option value="sandals">Sandals</option>
                 </select>
                 <input type="number" id="newProdPrice" required placeholder="Price (₦) *" class="text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                <input type="number" id="newProdStock" required placeholder="Available Stock *" value="10" class="text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
                 <div class="flex flex-col">
-                    <label class="text-[10px] font-bold text-gray-500 mb-1">Product Photos (Select 3+) *</label>
-                    <input type="file" id="newProdFiles" accept="image/*" multiple required class="text-xs file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                    <label class="text-[10px] font-bold text-gray-500 mb-1">Photos (Select 1+) *</label>
+                    <input type="file" id="newProdFiles" accept="image/*" multiple required class="text-xs file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700">
                 </div>
-                <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
+                <button type="submit" id="addProductBtn" class="bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
                     <i class="fa-solid fa-plus"></i> Add Item
                 </button>
             </form>
         </div>
 
-        <!-- CATALOG INVENTORY TABLE & SEARCH -->
+        <!-- CATALOG INVENTORY TABLE & STOCK MANAGEMENT -->
         <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 class="text-xl font-bold text-charcoal">Store Catalog Inventory & Pricing</h2>
+                <h2 class="text-xl font-bold text-charcoal">Catalog Inventory & Stock Management</h2>
                 <div class="relative w-full sm:w-72">
                     <input type="text" id="adminSearchInput" oninput="renderProductsTable()" placeholder="Search catalog items..." 
                            class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-brand-500">
@@ -126,76 +184,63 @@
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
                         <tr>
-                            <th class="py-3 px-4">Photos Preview</th>
+                            <th class="py-3 px-4">Photos (Remove / Add)</th>
                             <th class="py-3 px-4">Name</th>
                             <th class="py-3 px-4">Category</th>
-                            <th class="py-3 px-4">Replace Photos</th>
                             <th class="py-3 px-4">Price (₦)</th>
+                            <th class="py-3 px-4">Available Stock</th>
+                            <th class="py-3 px-4">Status</th>
                             <th class="py-3 px-4 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody" class="divide-y">
-                        <tr><td colspan="6" class="text-center py-8 text-gray-400">Loading catalog...</td></tr>
+                        <tr><td colspan="7" class="text-center py-8 text-gray-400">Loading inventory...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- PRODUCT ORDERS SECTION -->
+        <!-- ONLINE ORDERS SECTION -->
         <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div>
-                    <h2 class="text-xl font-bold text-charcoal">Product Orders</h2>
-                    <p class="text-xs text-gray-500">Orders submitted by clients through the website shopping cart.</p>
-                </div>
-                <button onclick="exportOrdersCSV()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-excel"></i> Export Orders to CSV
-                </button>
-            </div>
+            <h2 class="text-xl font-bold text-charcoal">Online Customer Orders & Verification</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
                         <tr>
                             <th class="py-3 px-4">Order ID</th>
                             <th class="py-3 px-4">Date</th>
-                            <th class="py-3 px-4">Customer Name</th>
+                            <th class="py-3 px-4">Customer & Phone</th>
                             <th class="py-3 px-4">Delivery Address</th>
-                            <th class="py-3 px-4">Items Ordered</th>
-                            <th class="py-3 px-4">Total Amount</th>
+                            <th class="py-3 px-4">Items</th>
+                            <th class="py-3 px-4">Total</th>
+                            <th class="py-3 px-4">Status</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody" class="divide-y">
-                        <tr><td colspan="6" class="text-center py-8 text-gray-400">No product orders recorded yet.</td></tr>
+                        <tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders yet.</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- INTERIOR CONSULTATIONS SECTION -->
+        <!-- IN-STORE ORDERS HISTORY -->
         <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div>
-                    <h2 class="text-xl font-bold text-charcoal">Interior Consultations</h2>
-                    <p class="text-xs text-gray-500">Service and design inquiry bookings submitted by clients.</p>
-                </div>
-                <button onclick="exportConsultationsCSV()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-excel"></i> Export Consultations to CSV
-                </button>
-            </div>
+            <h2 class="text-xl font-bold text-charcoal">In-Store Walk-In Order History</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
                         <tr>
-                            <th class="py-3 px-4">Booking ID</th>
+                            <th class="py-3 px-4">Walk-In ID</th>
                             <th class="py-3 px-4">Date</th>
-                            <th class="py-3 px-4">Service Type</th>
-                            <th class="py-3 px-4">Client Name</th>
-                            <th class="py-3 px-4">Contact (Phone / Email)</th>
-                            <th class="py-3 px-4">Location & Details</th>
+                            <th class="py-3 px-4">Customer</th>
+                            <th class="py-3 px-4">Payment Method</th>
+                            <th class="py-3 px-4">Items Sold</th>
+                            <th class="py-3 px-4">Total Amount</th>
+                            <th class="py-3 px-4">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="consultationsTableBody" class="divide-y">
-                        <tr><td colspan="6" class="text-center py-8 text-gray-400">No consultation inquiries recorded yet.</td></tr>
+                    <tbody id="inStoreOrdersTableBody" class="divide-y">
+                        <tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders recorded yet.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -203,21 +248,9 @@
 
     </main>
 
-    <!-- IMAGE PREVIEW MODAL -->
-    <div id="imageModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden" onclick="closeImageModal()">
-        <div class="relative max-w-3xl max-h-[90vh] bg-white p-4 rounded-3xl shadow-2xl text-center space-y-4" onclick="event.stopPropagation()">
-            <button onclick="closeImageModal()" class="absolute -top-3 -right-3 w-8 h-8 bg-charcoal text-white rounded-full flex items-center justify-center font-bold hover:bg-brand-500 transition shadow">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <img id="modalImage" src="" alt="Product Preview" class="max-w-full max-h-[60vh] object-contain rounded-2xl mx-auto shadow">
-            <p id="modalImageTitle" class="text-sm font-bold text-charcoal"></p>
-            <div id="modalThumbnails" class="flex justify-center gap-2 overflow-x-auto pb-2"></div>
-        </div>
-    </div>
-
     <script>
         const ADMIN_PIN = "2403";
-        let adminData = { products: [], orders: [], consultations: [] };
+        let adminData = { products: [], orders: [], inStoreOrders: [], consultations: [] };
 
         function verifyPin(e) {
             e.preventDefault();
@@ -243,50 +276,62 @@
         });
 
         async function fetchData() {
-            const res = await fetch('/api/admin/data');
-            const data = await res.json();
-            if (data.success) {
-                adminData = data;
-                document.getElementById('totalProductsCount').innerText = adminData.products.length;
-                document.getElementById('totalOrdersCount').innerText = adminData.orders.length;
-                document.getElementById('totalConsultationsCount').innerText = adminData.consultations.length;
-                renderProductsTable();
-                renderOrdersTable();
-                renderConsultationsTable();
+            try {
+                const res = await fetch('/api/admin/data');
+                const data = await res.json();
+                if (data.success) {
+                    adminData = data;
+                    document.getElementById('statTotalProducts').innerText = adminData.products.length;
+                    document.getElementById('statOnlineOrders').innerText = adminData.orders.length;
+                    document.getElementById('statInStoreOrders').innerText = adminData.inStoreOrders.length;
+                    document.getElementById('statTotalSales').innerText = '₦' + adminData.totalRevenue.toLocaleString();
+                    renderProductsTable();
+                    renderOrdersTable();
+                    renderInStoreOrdersTable();
+                    initWalkInItemRow();
+                }
+            } catch (err) {
+                console.error("Error fetching admin data", err);
             }
         }
 
         function renderProductsTable() {
             const tbody = document.getElementById('productsTableBody');
-            const searchVal = document.getElementById('adminSearchInput') ? document.getElementById('adminSearchInput').value.toLowerCase().trim() : '';
-            
-            const filteredProducts = adminData.products.filter(p => 
-                p.name.toLowerCase().includes(searchVal) || p.category.toLowerCase().includes(searchVal)
-            );
+            const searchVal = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+            const filtered = adminData.products.filter(p => p.name.toLowerCase().includes(searchVal) || p.category.toLowerCase().includes(searchVal));
 
-            if (filteredProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">No matching items found in inventory.</td></tr>`;
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No items found.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filteredProducts.map(p => {
-                const imgList = p.images && p.images.length > 0 ? p.images : [p.img];
-                const thumbsHtml = imgList.map((imgSrc, idx) => `
-                    <img src="${imgSrc}" onclick="openImageModal(${JSON.stringify(imgList).replace(/"/g, '&quot;')}, ${idx}, '${p.name.replace(/'/g, "\\'")}')" 
-                         class="w-10 h-10 object-cover rounded-lg border cursor-pointer hover:opacity-80 transition shadow-sm">
+            tbody.innerHTML = filtered.map(p => {
+                const isOut = p.stock <= 0;
+                const images = p.images && p.images.length > 0 ? p.images : (p.img ? [p.img] : []);
+                
+                const thumbsHtml = images.map((imgSrc, imgIndex) => `
+                    <div class="relative group/thumb inline-block">
+                        <img src="${imgSrc}" class="w-10 h-10 object-cover rounded-lg border shadow-sm">
+                        <button type="button" onclick="removeProductImage('${p.id}', ${imgIndex})" 
+                                class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-600 text-white rounded-full text-[9px] flex items-center justify-center font-black shadow hover:scale-110 transition" title="Remove this image">
+                            &times;
+                        </button>
+                    </div>
                 `).join('');
 
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-4">
-                            <div class="flex items-center gap-1.5 flex-wrap max-w-[150px]">
-                                ${thumbsHtml}
+                            <div class="flex items-center gap-1.5 flex-wrap max-w-[160px] mb-2">
+                                ${thumbsHtml || '<span class="text-gray-400 text-[10px]">No image</span>'}
                             </div>
+                            <input type="file" id="edit-files-${p.id}" accept="image/*" multiple class="text-[10px] file:py-1 file:px-2 file:rounded file:border-0 file:bg-gray-100 cursor-pointer">
                         </td>
                         <td class="py-3 px-4 font-bold text-charcoal">${p.name}</td>
                         <td class="py-3 px-4 uppercase text-[10px] font-extrabold text-brand-600">${p.category}</td>
-                        <td class="py-3 px-4"><input type="file" id="files-${p.id}" accept="image/*" multiple class="text-xs file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-100"></td>
-                        <td class="py-3 px-4"><input type="number" id="price-${p.id}" value="${p.price}" class="w-28 text-xs border rounded-lg p-2 font-bold"></td>
+                        <td class="py-3 px-4"><input type="number" id="price-${p.id}" value="${p.price}" class="w-24 text-xs border rounded-lg p-2 font-bold"></td>
+                        <td class="py-3 px-4"><input type="number" id="stock-${p.id}" value="${p.stock}" class="w-20 text-xs border rounded-lg p-2 font-bold"></td>
+                        <td class="py-3 px-4 font-bold ${isOut ? 'text-red-600' : 'text-emerald-600'}">${isOut ? 'OUT OF STOCK' : p.stock + ' in stock'}</td>
                         <td class="py-3 px-4 text-center space-x-2">
                             <button onclick="updateProduct('${p.id}')" class="bg-brand-500 hover:bg-brand-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs">Save</button>
                             <button onclick="deleteProduct('${p.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
@@ -296,155 +341,244 @@
             }).join('');
         }
 
-        function openImageModal(imagesArray, activeIndex, imgTitle) {
-            window.currentModalImages = imagesArray;
-            window.currentModalIndex = activeIndex;
-            updateModalDisplay(imgTitle);
-            document.getElementById('imageModal').classList.remove('hidden');
-        }
-
-        function updateModalDisplay(imgTitle) {
-            const images = window.currentModalImages;
-            const idx = window.currentModalIndex;
-            document.getElementById('modalImage').src = images[idx];
-            document.getElementById('modalImageTitle').innerText = `${imgTitle} (Photo ${idx + 1} of ${images.length})`;
-            
-            document.getElementById('modalThumbnails').innerHTML = images.map((img, i) => `
-                <img src="${img}" onclick="window.currentModalIndex = ${i}; updateModalDisplay('${imgTitle}')" 
-                     class="w-14 h-14 object-cover rounded-xl border-2 cursor-pointer transition ${i === idx ? 'border-brand-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
-            `).join('');
-        }
-
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
+        async function removeProductImage(productId, imageIndex) {
+            if (!confirm('Are you sure you want to remove this photo?')) return;
+            try {
+                const res = await fetch(`/api/products/${productId}/image`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageIndex })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    fetchData();
+                } else {
+                    alert(result.message || 'Failed to remove image.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error while removing image.');
+            }
         }
 
         function renderOrdersTable() {
             const tbody = document.getElementById('ordersTableBody');
             if (!adminData.orders || adminData.orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">No product orders recorded yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders recorded yet.</td></tr>`;
                 return;
             }
             tbody.innerHTML = adminData.orders.map(o => `
                 <tr class="hover:bg-gray-50">
                     <td class="py-3 px-4 font-bold text-brand-600">${o.id}</td>
                     <td class="py-3 px-4">${new Date(o.createdAt).toLocaleString()}</td>
-                    <td class="py-3 px-4 font-bold">${o.customerName}</td>
-                    <td class="py-3 px-4">${o.address}</td>
+                    <td class="py-3 px-4 font-bold">${o.customerName}<br><span class="text-[10px] text-gray-500 font-normal">${o.phone}</span></td>
+                    <td class="py-3 px-4">${o.address}, ${o.city}</td>
                     <td class="py-3 px-4">${o.items.map(i => `${i.name} (x${i.qty})`).join(', ')}</td>
-                    <td class="py-3 px-4 font-black text-charcoal">₦${o.totalAmount.toLocaleString()}</td>
+                    <td class="py-3 px-4 font-black">₦${o.totalAmount.toLocaleString()}</td>
+                    <td class="py-3 px-4">
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-xs font-bold border rounded p-1.5 bg-gray-50">
+                            <option value="Pending Verification" ${o.status === 'Pending Verification' ? 'selected' : ''}>Pending Verification</option>
+                            <option value="Payment Confirmed / Paid" ${o.status === 'Payment Confirmed / Paid' ? 'selected' : ''}>Payment Confirmed / Paid</option>
+                            <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </td>
                 </tr>
             `).join('');
         }
 
-        function renderConsultationsTable() {
-            const tbody = document.getElementById('consultationsTableBody');
-            if (!adminData.consultations || adminData.consultations.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">No consultation inquiries recorded yet.</td></tr>`;
+        function renderInStoreOrdersTable() {
+            const tbody = document.getElementById('inStoreOrdersTableBody');
+            if (!adminData.inStoreOrders || adminData.inStoreOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders recorded yet.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = adminData.consultations.map(c => `
+            tbody.innerHTML = adminData.inStoreOrders.map(o => `
                 <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4 font-bold text-blue-600">${c.id}</td>
-                    <td class="py-3 px-4">${new Date(c.createdAt).toLocaleString()}</td>
-                    <td class="py-3 px-4 font-bold">${c.serviceType}</td>
-                    <td class="py-3 px-4">${c.name}</td>
-                    <td class="py-3 px-4">${c.phone || '-'} / ${c.email || '-'}</td>
-                    <td class="py-3 px-4">${c.location}: ${c.details}</td>
+                    <td class="py-3 px-4 font-bold text-blue-600">${o.id}</td>
+                    <td class="py-3 px-4">${new Date(o.createdAt).toLocaleString()}</td>
+                    <td class="py-3 px-4 font-bold">${o.customerName}</td>
+                    <td class="py-3 px-4 uppercase text-[10px] font-extrabold text-blue-700">${o.paymentMethod}</td>
+                    <td class="py-3 px-4">${o.items.map(i => `${i.name} (x${i.qty})`).join(', ')}</td>
+                    <td class="py-3 px-4 font-black">₦${o.totalAmount.toLocaleString()}</td>
+                    <td class="py-3 px-4 font-bold text-emerald-600">${o.status}</td>
                 </tr>
             `).join('');
+        }
+
+        function initWalkInItemRow() {
+            const container = document.getElementById('walkInItemsList');
+            container.innerHTML = `
+                <div class="flex items-center gap-2 walk-in-row">
+                    <select class="flex-1 text-xs p-2.5 border rounded-xl walk-in-product">
+                        ${adminData.products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (₦${p.price.toLocaleString()} - Stock: ${p.stock})</option>`).join('')}
+                    </select>
+                    <input type="number" min="1" value="1" class="w-20 text-xs p-2.5 border rounded-xl walk-in-qty">
+                    <button type="button" onclick="this.parentElement.remove()" class="text-red-500 px-2"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+        }
+
+        function addWalkInItemRow() {
+            const container = document.getElementById('walkInItemsList');
+            const row = document.createElement('div');
+            row.className = "flex items-center gap-2 walk-in-row mt-2";
+            row.innerHTML = `
+                <select class="flex-1 text-xs p-2.5 border rounded-xl walk-in-product">
+                    ${adminData.products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (₦${p.price.toLocaleString()} - Stock: ${p.stock})</option>`).join('')}
+                </select>
+                <input type="number" min="1" value="1" class="w-20 text-xs p-2.5 border rounded-xl walk-in-qty">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 px-2"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            container.appendChild(row);
+        }
+
+        async function createInStoreOrder(e) {
+            e.preventDefault();
+            const customerName = document.getElementById('walkInName').value.trim();
+            const phone = document.getElementById('walkInPhone').value.trim();
+            const paymentMethod = document.getElementById('walkInPayment').value;
+            const status = document.getElementById('walkInStatus').value;
+            const notes = document.getElementById('walkInNotes').value.trim();
+
+            const rows = document.querySelectorAll('.walk-in-row');
+            let items = [];
+            let totalAmount = 0;
+
+            for (const r of rows) {
+                const select = r.querySelector('.walk-in-product');
+                const qtyInput = r.querySelector('.walk-in-qty');
+                const prodId = select.value;
+                const qty = Number(qtyInput.value);
+                const option = select.selectedOptions[0];
+                const price = Number(option.getAttribute('data-price'));
+                const stock = Number(option.getAttribute('data-stock'));
+                const name = option.text.split(' (')[0];
+
+                if (qty > stock) {
+                    alert(`Not enough stock for ${name}. Available: ${stock}`);
+                    return;
+                }
+
+                items.push({ id: prodId, name, price, qty, img: '' });
+                totalAmount += price * qty;
+            }
+
+            try {
+                const res = await fetch('/api/in-store-orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerName, phone, items, totalAmount, paymentMethod, status, notes })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Walk-in order created successfully! Inventory updated.');
+                    document.getElementById('walkInName').value = '';
+                    document.getElementById('walkInPhone').value = '';
+                    document.getElementById('walkInNotes').value = '';
+                    fetchData();
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error creating walk-in order.');
+            }
         }
 
         async function addNewProduct(e) {
             e.preventDefault();
+            const btn = document.getElementById('addProductBtn');
+            btn.innerText = 'Adding...';
+            btn.disabled = true;
+
             const formData = new FormData();
             formData.append('name', document.getElementById('newProdName').value.trim());
             formData.append('category', document.getElementById('newProdCategory').value);
             formData.append('price', document.getElementById('newProdPrice').value);
+            formData.append('stock', document.getElementById('newProdStock').value);
             
             const fileInput = document.getElementById('newProdFiles');
             for (let i = 0; i < fileInput.files.length; i++) {
                 formData.append('imageFiles', fileInput.files[i]);
             }
 
-            const res = await fetch('/api/products', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await res.json();
-            if (result.success) {
-                alert('New item added successfully!');
-                document.getElementById('newProdName').value = '';
-                document.getElementById('newProdPrice').value = '';
-                document.getElementById('newProdFiles').value = '';
-                fetchData();
-            } else {
-                alert('Failed to add item.');
+            try {
+                const res = await fetch('/api/products', { method: 'POST', body: formData });
+                const result = await res.json();
+                if (result.success) {
+                    alert('New item added successfully!');
+                    document.getElementById('newProdName').value = '';
+                    document.getElementById('newProdPrice').value = '';
+                    document.getElementById('newProdStock').value = '10';
+                    document.getElementById('newProdFiles').value = '';
+                    fetchData();
+                } else {
+                    alert(result.message || 'Failed to add item.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error while adding product.');
+            } finally {
+                btn.innerText = 'Add Item';
+                btn.disabled = false;
             }
         }
 
         async function updateProduct(id) {
             const formData = new FormData();
             formData.append('price', document.getElementById(`price-${id}`).value);
-            
-            const fileInput = document.getElementById(`files-${id}`);
-            if (fileInput.files.length > 0) {
+            formData.append('stock', document.getElementById(`stock-${id}`).value);
+
+            const fileInput = document.getElementById(`edit-files-${id}`);
+            if (fileInput && fileInput.files.length > 0) {
                 for (let i = 0; i < fileInput.files.length; i++) {
                     formData.append('imageFiles', fileInput.files[i]);
                 }
             }
 
-            const res = await fetch(`/api/products/${id}`, {
-                method: 'PUT',
-                body: formData
-            });
-            const result = await res.json();
-            if (result.success) {
-                alert('Product updated successfully!');
-                fetchData();
-            } else {
-                alert('Failed to update product.');
+            try {
+                const res = await fetch(`/api/products/${id}`, { method: 'PUT', body: formData });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Product updated successfully!');
+                    fetchData();
+                } else {
+                    alert(result.message || 'Failed to update product.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error updating product.');
             }
         }
 
         async function deleteProduct(id) {
             if (!confirm('Are you sure you want to delete this item?')) return;
-            const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-            const result = await res.json();
-            if (result.success) {
-                alert('Item deleted successfully!');
-                fetchData();
-            } else {
-                alert('Failed to delete item.');
+            try {
+                const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Item deleted successfully!');
+                    fetchData();
+                } else {
+                    alert('Failed to delete item.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error deleting product.');
             }
         }
 
-        function exportOrdersCSV() {
-            if (!adminData.orders || adminData.orders.length === 0) return alert('No orders to export.');
-            let csv = 'Order ID,Date,Customer Name,Delivery Address,Total Amount\n';
-            adminData.orders.forEach(o => {
-                csv += `"${o.id}","${o.createdAt}","${o.customerName}","${o.address}","${o.totalAmount}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'orders_export.csv');
-            a.click();
-        }
-
-        function exportConsultationsCSV() {
-            if (!adminData.consultations || adminData.consultations.length === 0) return alert('No consultations to export.');
-            let csv = 'Booking ID,Date,Service Type,Client Name,Location,Details\n';
-            adminData.consultations.forEach(c => {
-                csv += `"${c.id}","${c.createdAt}","${c.serviceType}","${c.name}","${c.location}","${c.details}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'consultations_export.csv');
-            a.click();
+        async function updateOrderStatus(orderId, status) {
+            try {
+                await fetch(`/api/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                fetchData();
+            } catch (err) {
+                console.error(err);
+            }
         }
     </script>
 </body>
