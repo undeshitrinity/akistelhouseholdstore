@@ -38,8 +38,6 @@
     <!-- MAIN HEADER -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between py-3 gap-3">
-            
-            <!-- LOGO & BRAND NAME -->
             <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToTopAndReset()">
                 <div class="w-10 h-10 sm:w-11 sm:h-11 bg-brand-500 rounded-xl flex items-center justify-center text-white font-black text-xl sm:text-2xl shadow-lg shadow-brand-500/30">
                     A
@@ -50,7 +48,6 @@
                 </div>
             </div>
 
-            <!-- CART BUTTON -->
             <div class="flex items-center gap-4 order-2 lg:order-3">
                 <button onclick="toggleCartDrawer()" class="relative bg-brand-50 hover:bg-brand-100 text-brand-600 p-2.5 sm:p-3 rounded-full transition">
                     <i class="fa-solid fa-bag-shopping text-lg sm:text-xl"></i>
@@ -58,7 +55,6 @@
                 </button>
             </div>
 
-            <!-- SEARCH BAR (VISIBLE ON ALL MOBILE & DESKTOP SCREENS) -->
             <div class="w-full lg:flex-1 lg:max-w-md lg:mx-8 relative order-3 lg:order-2">
                 <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search items, bags, hair kits, slippers..." 
                        class="w-full bg-gray-50 border border-gray-200 rounded-full py-2 pl-10 pr-4 text-xs sm:text-sm focus:outline-none focus:border-brand-500">
@@ -93,7 +89,6 @@
             <h2 id="catalogTitle" class="text-2xl sm:text-4xl font-extrabold text-charcoal">All Store Items</h2>
         </div>
         
-        <!-- Top Category Bar -->
         <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar scroll-smooth" id="categoryBar"></div>
 
         <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
@@ -131,9 +126,9 @@
                     </a>
                 </div>
 
-                <div class="text-right md:text-right">
+                <div class="text-right">
                     <a href="/admin" target="_blank" class="inline-flex items-center gap-1 text-brand-500 hover:text-white font-bold text-xs bg-white/5 px-3.5 py-2 rounded-lg transition">
-                        <i class="fa-solid fa-lock text-[10px]"></i> Admin Portal
+                        <i class="fa-solid fa-lock text-[10px]"></i> Admin Login
                     </a>
                 </div>
             </div>
@@ -144,7 +139,7 @@
         </div>
     </footer>
 
-    <!-- CART DRAWER -->
+    <!-- CART & CHECKOUT DRAWER -->
     <div id="cartOverlay" class="fixed inset-0 bg-black/60 z-50 opacity-0 pointer-events-none transition-opacity duration-300" onclick="toggleCartDrawer()"></div>
     <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:max-w-md bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
         <div class="p-4 bg-charcoal text-white flex items-center justify-between">
@@ -157,15 +152,104 @@
                 <span>Total:</span>
                 <span id="cartTotal" class="text-brand-600">₦0.00</span>
             </div>
-            <input type="text" id="customerName" placeholder="Full Name *" class="w-full text-xs p-3 border rounded-lg">
-            <input type="text" id="customerAddress" placeholder="Delivery Address / City *" class="w-full text-xs p-3 border rounded-lg">
-            <button onclick="checkoutViaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
-                <i class="fa-brands fa-whatsapp text-xl"></i> Checkout via WhatsApp (+234 812 584 7101)
+            <button onclick="openCheckoutModal()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow">
+                Proceed to Checkout <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
         </div>
     </div>
 
-    <!-- CUSTOMER GALLERY MODAL -->
+    <!-- CHECKOUT MODAL WITH OPAY PAYMENT & DELIVERY INFO -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 my-8">
+            <div class="flex justify-between items-center border-b pb-4">
+                <h3 class="text-xl font-extrabold text-charcoal">Complete Your Checkout</h3>
+                <button onclick="closeCheckoutModal()" class="text-gray-400 hover:text-charcoal text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- STEP 1: PAYMENT INFO -->
+            <div class="bg-orange-50 border border-brand-500/30 rounded-2xl p-4 space-y-2">
+                <h4 class="font-extrabold text-sm text-brand-700 flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card"></i> Bank Payment Information (Opay)
+                </h4>
+                <div class="text-xs space-y-1 text-gray-700 font-medium">
+                    <p><strong>Bank:</strong> Opay</p>
+                    <p><strong>Account Name:</strong> Stella Inyanguku</p>
+                    <p><strong>Account Number:</strong> <span class="font-black text-brand-600 text-sm select-all">6113202648</span></p>
+                </div>
+                <p class="text-[11px] text-brand-700 bg-white/80 p-2 rounded-xl font-bold mt-2">
+                    ⚠️ Please make payment to the account above before clicking the "I Have Made Payment" button below.
+                </p>
+            </div>
+
+            <!-- STEP 2: DELIVERY DETAILS FORM -->
+            <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-3">
+                <h4 class="font-bold text-xs uppercase tracking-wider text-gray-500">Delivery Information</h4>
+                
+                <div>
+                    <label class="text-[11px] font-bold text-gray-600">Full Name *</label>
+                    <input type="text" id="delName" required class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-600">Phone Number (Required) *</label>
+                        <input type="tel" id="delPhone" required placeholder="e.g. 08123456789" class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-600">WhatsApp Number</label>
+                        <input type="tel" id="delWhatsapp" placeholder="Optional" class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-gray-600">Delivery Address *</label>
+                    <input type="text" id="delAddress" required placeholder="Street address" class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-600">City *</label>
+                        <input type="text" id="delCity" required placeholder="Calabar" class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-600">State *</label>
+                        <input type="text" id="delState" required placeholder="Cross River State" class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-gray-600">Additional Delivery Instructions</label>
+                    <textarea id="delNotes" placeholder="Gate color, landmark, preferred delivery time..." class="w-full text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500 h-16"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm mt-4">
+                    <i class="fa-solid fa-circle-check"></i> I Have Made Payment / Payment Completed
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- WHATSAPP RECEIPT SUCCESS MODAL -->
+    <div id="receiptModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl text-center space-y-6">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black text-charcoal">Order Placed Successfully!</h3>
+                <p class="text-xs text-gray-500 mt-1">Your Order ID is: <strong id="successOrderId" class="text-brand-600"></strong></p>
+            </div>
+            <p class="text-xs text-gray-600 bg-gray-50 p-3 rounded-xl">
+                Click the button below to send your payment receipt and order confirmation directly to our business WhatsApp. Please attach your payment screenshot before sending!
+            </p>
+            <a id="whatsappReceiptBtn" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl transition shadow-xl flex items-center justify-center gap-2 text-sm">
+                <i class="fa-brands fa-whatsapp text-xl"></i> SEND PAYMENT RECEIPT ON WHATSAPP
+            </a>
+            <button onclick="closeReceiptModal()" class="text-xs text-gray-400 hover:text-charcoal block mx-auto font-bold">Return to Store</button>
+        </div>
+    </div>
+
+    <!-- IMAGE PREVIEW MODAL -->
     <div id="customerImageModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden" onclick="closeCustomerImageModal()">
         <div class="relative max-w-3xl max-h-[90vh] bg-white p-4 rounded-3xl shadow-2xl text-center space-y-4" onclick="event.stopPropagation()">
             <button onclick="closeCustomerImageModal()" class="absolute -top-3 -right-3 w-9 h-9 bg-charcoal text-white rounded-full flex items-center justify-center font-bold hover:bg-brand-500 transition shadow-lg">
@@ -198,17 +282,21 @@
         let cart = [];
 
         window.addEventListener('DOMContentLoaded', async () => {
+            await fetchCatalog();
+        });
+
+        async function fetchCatalog() {
             try {
                 const res = await fetch('/api/products');
                 const result = await res.json();
                 if (result.success) CATALOG = result.data;
             } catch (err) {
-                console.error("Failed to load products from server API", err);
+                console.error("Failed to load products", err);
             }
             renderCategoryBars();
             renderProducts();
             updateCartUI();
-        });
+        }
 
         function scrollToTopAndReset() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -257,7 +345,6 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             const titleElem = document.getElementById('catalogTitle');
-            
             const currentCatObj = CATEGORIES.find(c => c.id === activeCategory);
             titleElem.innerText = currentCatObj ? currentCatObj.name : 'Store Catalog';
 
@@ -273,9 +360,11 @@
             grid.innerHTML = filtered.map(product => {
                 const imgList = product.images && product.images.length > 0 ? product.images : [product.img];
                 const primaryImg = imgList[0];
+                const isOutOfStock = product.stock <= 0 || product.inStock === false;
 
                 return `
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition overflow-hidden flex flex-col group">
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition overflow-hidden flex flex-col group relative">
+                        ${isOutOfStock ? '<div class="absolute top-3 left-3 z-10 bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg shadow">OUT OF STOCK</div>' : ''}
                         <div class="relative h-40 bg-gray-100 overflow-hidden cursor-pointer" onclick="openCustomerImageModal(${JSON.stringify(imgList).replace(/"/g, '&quot;')}, 0, '${product.name.replace(/'/g, "\\'")}')">
                             <img src="${primaryImg}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" title="Click to view photos">
                             <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
@@ -283,12 +372,16 @@
                             </div>
                         </div>
                         <div class="p-4 flex-1 flex flex-col justify-between">
-                            <h3 class="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2">${product.name}</h3>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2">${product.name}</h3>
+                                <span class="text-[10px] font-bold text-gray-400 block mt-1">Available: ${product.stock} units</span>
+                            </div>
                             <div class="mt-3 pt-2.5 border-t flex items-center justify-between">
-                                <span class="font-black text-brand-600 text-xs sm:text-base">${product.price === 0 ? 'Price not stated' : '₦' + product.price.toLocaleString()}</span>
-                                <button onclick="addToCart('${product.id}')" class="bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white p-2 rounded-xl transition">
-                                    <i class="fa-solid fa-cart-plus"></i>
-                                </button>
+                                <span class="font-black text-brand-600 text-xs sm:text-base">₦${product.price.toLocaleString()}</span>
+                                ${isOutOfStock ? 
+                                    '<span class="text-xs font-bold text-red-500">Sold Out</span>' : 
+                                    `<button onclick="addToCart('${product.id}')" class="bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white p-2 rounded-xl transition"><i class="fa-solid fa-cart-plus"></i></button>`
+                                }
                             </div>
                         </div>
                     </div>
@@ -308,7 +401,6 @@
             const idx = window.currentCustIndex;
             document.getElementById('customerModalImg').src = images[idx];
             document.getElementById('customerModalTitle').innerText = `${imgTitle} (Photo ${idx + 1} of ${images.length})`;
-            
             document.getElementById('customerModalThumbnails').innerHTML = images.map((img, i) => `
                 <img src="${img}" onclick="window.currentCustIndex = ${i}; updateCustomerModalDisplay('${imgTitle}')" 
                      class="w-14 h-14 object-cover rounded-xl border-2 cursor-pointer transition ${i === idx ? 'border-brand-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}">
@@ -321,8 +413,12 @@
 
         function addToCart(id) {
             const product = CATALOG.find(p => p.id === id);
-            if (!product) return;
+            if (!product || product.stock <= 0) return alert('Product is out of stock.');
             const existing = cart.find(item => item.id === id);
+            const currentQtyInCart = existing ? existing.qty : 0;
+            if (currentQtyInCart + 1 > product.stock) {
+                return alert(`Cannot add more than available stock (${product.stock} units).`);
+            }
             if (existing) existing.qty += 1;
             else cart.push({ ...product, qty: 1 });
             updateCartUI();
@@ -330,9 +426,12 @@
         }
 
         function updateQuantity(id, delta) {
+            const product = CATALOG.find(p => p.id === id);
             const item = cart.find(i => i.id === id);
             if (item) {
-                item.qty += delta;
+                const newQty = item.qty + delta;
+                if (newQty > product.stock) return alert(`Only ${product.stock} units available in stock.`);
+                item.qty = newQty;
                 if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
             }
             updateCartUI();
@@ -378,29 +477,56 @@
             }
         }
 
-        async function checkoutViaWhatsApp() {
-            if (cart.length === 0) return alert('Cart is empty');
-            const customerName = document.getElementById('customerName').value.trim();
-            const address = document.getElementById('customerAddress').value.trim();
-            if (!customerName || !address) return alert('Please enter your name and address.');
+        function openCheckoutModal() {
+            if (cart.length === 0) return alert('Your cart is empty.');
+            toggleCartDrawer();
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        async function submitOrder(e) {
+            e.preventDefault();
+            const customerName = document.getElementById('delName').value.trim();
+            const phone = document.getElementById('delPhone').value.trim();
+            const whatsapp = document.getElementById('delWhatsapp').value.trim();
+            const address = document.getElementById('delAddress').value.trim();
+            const city = document.getElementById('delCity').value.trim();
+            const state = document.getElementById('delState').value.trim();
+            const notes = document.getElementById('delNotes').value.trim();
             const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            if (!customerName || !phone || !address || !city || !state) {
+                return alert('Please fill in all required delivery details.');
+            }
 
             try {
                 const res = await fetch('/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ customerName, address, items: cart, totalAmount })
+                    body: JSON.stringify({ customerName, phone, whatsapp, address, city, state, notes, items: cart, totalAmount })
                 });
                 const result = await res.json();
-                if (result.success && result.whatsappUrl) {
-                    window.open(result.whatsappUrl, '_blank');
+                if (result.success) {
+                    closeCheckoutModal();
+                    document.getElementById('successOrderId').innerText = result.orderId;
+                    document.getElementById('whatsappReceiptBtn').href = result.whatsappUrl;
+                    document.getElementById('receiptModal').classList.remove('hidden');
                     cart = [];
                     updateCartUI();
-                    toggleCartDrawer();
+                    fetchCatalog(); // Refresh stock counts
+                } else {
+                    alert(result.message || 'Checkout failed.');
                 }
             } catch (err) {
-                alert('Could not complete order. Make sure your server is running.');
+                alert('Server error during checkout.');
             }
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
         }
     </script>
 </body>
