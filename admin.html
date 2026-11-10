@@ -26,11 +26,11 @@
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-black text-charcoal">Admin Access Required</h2>
-                <p class="text-xs text-gray-500 mt-1">Enter PIN to manage store catalog, inventory, and orders.</p>
+                <h2 class="text-2xl font-black text-charcoal">Portal Access Required</h2>
+                <p class="text-xs text-gray-500 mt-1">Enter Admin PIN or Cashier PIN to proceed.</p>
             </div>
             <form onsubmit="verifyPin(event)" class="space-y-4">
-                <input type="password" id="adminPinInput" required maxlength="4" placeholder="Enter PIN " 
+                <input type="password" id="adminPinInput" required maxlength="4" placeholder="Enter PIN" 
                        class="w-full text-center tracking-widest text-2xl font-bold bg-gray-50 border rounded-xl p-3.5 focus:outline-none focus:border-brand-500">
                 <p id="loginError" class="text-xs text-red-500 hidden font-semibold">Incorrect PIN.</p>
                 <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow-lg">Unlock Dashboard</button>
@@ -45,7 +45,7 @@
             <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center font-black text-xl text-white">A</div>
             <div>
                 <h1 class="font-bold text-lg leading-none">AKISTEL HOUSEHOLD STORE</h1>
-                <span class="text-xs text-brand-500 font-semibold uppercase">Admin & In-Store Management Portal</span>
+                <span id="portalRoleSubtitle" class="text-xs text-brand-500 font-semibold uppercase">Admin & In-Store Management Portal</span>
             </div>
         </div>
         <button onclick="lockDashboard()" class="bg-white/10 hover:bg-white/20 text-gray-300 text-xs font-bold px-3 py-2 rounded-lg transition"><i class="fa-solid fa-lock mr-1"></i> Lock</button>
@@ -54,7 +54,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
         
         <!-- STATS CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+        <div id="statsSection" class="grid grid-cols-1 sm:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
                 <div>
                     <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Total Products</span>
@@ -142,7 +142,7 @@
         </div>
 
         <!-- ADD NEW PRODUCT FORM -->
-        <div class="bg-white rounded-2xl shadow-sm border p-6">
+        <div id="addProductSection" class="bg-white rounded-2xl shadow-sm border p-6">
             <h2 class="text-lg font-bold text-charcoal mb-4">Add New Item to Catalog & Inventory</h2>
             <form onsubmit="addNewProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-center">
                 <input type="text" id="newProdName" required placeholder="Item Name *" class="text-xs p-3 border rounded-xl focus:outline-none focus:border-brand-500">
@@ -171,7 +171,7 @@
         </div>
 
         <!-- CATALOG INVENTORY TABLE & STOCK MANAGEMENT -->
-        <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+        <div id="catalogSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h2 class="text-xl font-bold text-charcoal">Catalog Inventory & Stock Management</h2>
                 <div class="relative w-full sm:w-72">
@@ -201,7 +201,7 @@
         </div>
 
         <!-- ONLINE ORDERS SECTION -->
-        <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+        <div id="onlineOrdersSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
             <h2 class="text-xl font-bold text-charcoal">Online Customer Orders & Verification</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
@@ -224,7 +224,7 @@
         </div>
 
         <!-- IN-STORE ORDERS HISTORY -->
-        <div class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+        <div id="inStoreHistorySection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
             <h2 class="text-xl font-bold text-charcoal">In-Store Walk-In Order History</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
@@ -249,14 +249,24 @@
     </main>
 
     <script>
-        const ADMIN_PIN = "2403";
+        const SUPER_PIN = "2403";
+        const CASHIER_PIN = "5555"; // Cashier PIN for walk-in panel access only
         let adminData = { products: [], orders: [], inStoreOrders: [], consultations: [] };
 
         function verifyPin(e) {
             e.preventDefault();
-            if (document.getElementById('adminPinInput').value === ADMIN_PIN) {
-                document.getElementById('loginScreen').classList.add('hidden');
+            const inputVal = document.getElementById('adminPinInput').value;
+
+            if (inputVal === SUPER_PIN) {
                 sessionStorage.setItem('akistel_auth', 'true');
+                sessionStorage.setItem('akistel_role', 'admin');
+                document.getElementById('loginScreen').classList.add('hidden');
+                fetchData();
+            } else if (inputVal === CASHIER_PIN) {
+                sessionStorage.setItem('akistel_auth', 'true');
+                sessionStorage.setItem('akistel_role', 'cashier');
+                document.getElementById('loginScreen').classList.add('hidden');
+                applyCashierView();
                 fetchData();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
@@ -265,15 +275,27 @@
 
         function lockDashboard() {
             sessionStorage.removeItem('akistel_auth');
-            document.getElementById('loginScreen').classList.remove('hidden');
+            sessionStorage.removeItem('akistel_role');
+            location.reload();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('akistel_auth') === 'true') {
                 document.getElementById('loginScreen').classList.add('hidden');
+                if (sessionStorage.getItem('akistel_role') === 'cashier') {
+                    applyCashierView();
+                }
                 fetchData();
             }
         });
+
+        function applyCashierView() {
+            document.getElementById('portalRoleSubtitle').innerText = "Cashier Walk-In Portal";
+            document.getElementById('statsSection').style.display = 'none';
+            document.getElementById('addProductSection').style.display = 'none';
+            document.getElementById('catalogSection').style.display = 'none';
+            document.getElementById('onlineOrdersSection').style.display = 'none';
+        }
 
         async function fetchData() {
             try {
@@ -281,13 +303,19 @@
                 const data = await res.json();
                 if (data.success) {
                     adminData = data;
-                    document.getElementById('statTotalProducts').innerText = adminData.products.length;
-                    document.getElementById('statOnlineOrders').innerText = adminData.orders.length;
-                    document.getElementById('statInStoreOrders').innerText = adminData.inStoreOrders.length;
-                    document.getElementById('statTotalSales').innerText = '₦' + adminData.totalRevenue.toLocaleString();
-                    renderProductsTable();
-                    renderOrdersTable();
-                    renderInStoreOrdersTable();
+                    const role = sessionStorage.getItem('akistel_role');
+
+                    if (role !== 'cashier') {
+                        document.getElementById('statTotalProducts').innerText = adminData.products.length;
+                        document.getElementById('statOnlineOrders').innerText = adminData.orders.length;
+                        document.getElementById('statInStoreOrders').innerText = adminData.inStoreOrders.length;
+                        document.getElementById('statTotalSales').innerText = '₦' + adminData.totalRevenue.toLocaleString();
+                        renderProductsTable();
+                        renderOrdersTable();
+                        renderInStoreOrdersTable();
+                    } else {
+                        renderInStoreOrdersTable();
+                    }
                     initWalkInItemRow();
                 }
             } catch (err) {
