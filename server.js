@@ -230,7 +230,7 @@ app.post('/api/orders', async (req, res) => {
   try {
     const { customerName, phone, whatsapp, address, city, state, notes, items, totalAmount } = req.body;
     if (!customerName || !phone || !address || !items || items.length === 0) {
-      return res.status(400).json({ success: false, message: 'Missing required delivery details or items.' });
+      return res.status(400).json({ success: false, message: 'Missing required delivery details or iitems.' });
     }
 
     for (const item of items) {
