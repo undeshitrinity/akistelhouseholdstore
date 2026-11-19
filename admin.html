@@ -223,9 +223,26 @@
             </div>
         </div>
 
-        <!-- IN-STORE ORDERS HISTORY -->
+        <!-- IN-STORE ORDERS HISTORY WITH FILTERS -->
         <div id="inStoreHistorySection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <h2 class="text-xl font-bold text-charcoal">In-Store Walk-In Order History</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal">In-Store Walk-In Order History</h2>
+                    <p class="text-xs text-gray-500">Filter past transactions by timeline.</p>
+                </div>
+                <!-- Timeline Filter Dropdowns -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <select id="filterYear" onchange="filterInStoreOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
+                        <option value="all">All Years</option>
+                    </select>
+                    <select id="filterMonth" onchange="filterInStoreOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
+                        <option value="all">All Months</option>
+                    </select>
+                    <select id="filterDay" onchange="filterInStoreOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
+                        <option value="all">All Days</option>
+                    </select>
+                </div>
+            </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
@@ -252,6 +269,7 @@
         const SUPER_PIN = "2403";
         const CASHIER_PIN = "5555";
         let adminData = { products: [], orders: [], inStoreOrders: [], consultations: [] };
+        let filteredInStoreOrdersCache = [];
 
         function verifyPin(e) {
             e.preventDefault();
@@ -415,12 +433,62 @@
         }
 
         function renderInStoreOrdersTable() {
-            const tbody = document.getElementById('inStoreOrdersTableBody');
-            if (!adminData.inStoreOrders || adminData.inStoreOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders recorded yet.</td></tr>`;
+            const orders = adminData.inStoreOrders || [];
+            if (orders.length === 0) {
+                document.getElementById('inStoreOrdersTableBody').innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders recorded yet.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = adminData.inStoreOrders.map(o => `
+            populateInStoreFilterDropdowns(orders);
+            filterInStoreOrders();
+        }
+
+        function populateInStoreFilterDropdowns(orders) {
+            const years = [...new Set(orders.map(o => new Date(o.createdAt).getFullYear()))].sort((a,b) => b - a);
+            const months = [
+                {val: 0, name: 'January'}, {val: 1, name: 'February'}, {val: 2, name: 'March'}, 
+                {val: 3, name: 'April'}, {val: 4, name: 'May'}, {val: 5, name: 'June'}, 
+                {val: 6, name: 'July'}, {val: 7, name: 'August'}, {val: 8, name: 'September'}, 
+                {val: 9, name: 'October'}, {val: 10, name: 'November'}, {val: 11, name: 'December'}
+            ];
+
+            const yearSelect = document.getElementById('filterYear');
+            const currentYearVal = yearSelect.value;
+            yearSelect.innerHTML = `<option value="all">All Years</option>` + years.map(y => `<option value="${y}" ${y == currentYearVal ? 'selected' : ''}>${y}</option>`).join('');
+
+            const monthSelect = document.getElementById('filterMonth');
+            const currentMonthVal = monthSelect.value;
+            monthSelect.innerHTML = `<option value="all">All Months</option>` + months.map(m => `<option value="${m.val}" ${m.val == currentMonthVal ? 'selected' : ''}>${m.name}</option>`).join('');
+
+            const daySelect = document.getElementById('filterDay');
+            const currentDayVal = daySelect.value;
+            let daysHtml = `<option value="all">All Days</option>`;
+            for (let d = 1; d <= 31; d++) {
+                daysHtml += `<option value="${d}" ${d == currentDayVal ? 'selected' : ''}>Day ${d}</option>`;
+            }
+            daySelect.innerHTML = daysHtml;
+        }
+
+        function filterInStoreOrders() {
+            const orders = adminData.inStoreOrders || [];
+            const selectedYear = document.getElementById('filterYear').value;
+            const selectedMonth = document.getElementById('filterMonth').value;
+            const selectedDay = document.getElementById('filterDay').value;
+
+            filteredInStoreOrdersCache = orders.filter(o => {
+                const date = new Date(o.createdAt);
+                const yMatch = selectedYear === 'all' || date.getFullYear() == selectedYear;
+                const mMatch = selectedMonth === 'all' || date.getMonth() == selectedMonth;
+                const dMatch = selectedDay === 'all' || date.getDate() == selectedDay;
+                return yMatch && mMatch && dMatch;
+            });
+
+            const tbody = document.getElementById('inStoreOrdersTableBody');
+            if (filteredInStoreOrdersCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders found for this selection.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredInStoreOrdersCache.map(o => `
                 <tr class="hover:bg-gray-50">
                     <td class="py-3 px-4 font-bold text-blue-600">${o.id}</td>
                     <td class="py-3 px-4">${new Date(o.createdAt).toLocaleString()}</td>
