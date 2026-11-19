@@ -170,22 +170,17 @@
             </form>
         </div>
 
-        <!-- FOLDABLE CATALOG INVENTORY TABLE & STOCK MANAGEMENT -->
-        <details id="catalogSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4 group" open>
-            <summary class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer list-none">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-orange-50 text-brand-500 flex items-center justify-center text-sm transition-transform group-open:rotate-90">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </div>
-                    <h2 class="text-xl font-bold text-charcoal">Catalog Inventory & Stock Management</h2>
-                </div>
-                <div class="relative w-full sm:w-72" onclick="event.stopPropagation()">
+        <!-- CATALOG INVENTORY TABLE & STOCK MANAGEMENT -->
+        <div id="catalogSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-xl font-bold text-charcoal">Catalog Inventory & Stock Management</h2>
+                <div class="relative w-full sm:w-72">
                     <input type="text" id="adminSearchInput" oninput="renderProductsTable()" placeholder="Search catalog items..." 
                            class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-brand-500">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
                 </div>
-            </summary>
-            <div class="overflow-x-auto pt-2">
+            </div>
+            <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
                         <tr>
@@ -203,28 +198,11 @@
                     </tbody>
                 </table>
             </div>
-        </details>
+        </div>
 
-        <!-- ONLINE ORDERS SECTION WITH TIMELINE FILTERS -->
+        <!-- ONLINE ORDERS SECTION -->
         <div id="onlineOrdersSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-charcoal">Online Customer Orders & Verification</h2>
-                    <p class="text-xs text-gray-500">Filter online transactions by timeline.</p>
-                </div>
-                <!-- Online Orders Timeline Filter Dropdowns -->
-                <div class="flex items-center gap-2 flex-wrap">
-                    <select id="filterOnlineYear" onchange="filterOnlineOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
-                        <option value="all">All Years</option>
-                    </select>
-                    <select id="filterOnlineMonth" onchange="filterOnlineOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
-                        <option value="all">All Months</option>
-                    </select>
-                    <select id="filterOnlineDay" onchange="filterOnlineOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
-                        <option value="all">All Days</option>
-                    </select>
-                </div>
-            </div>
+            <h2 class="text-xl font-bold text-charcoal">Online Customer Orders & Verification</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
@@ -245,26 +223,9 @@
             </div>
         </div>
 
-        <!-- IN-STORE ORDERS HISTORY WITH FILTERS -->
+        <!-- IN-STORE ORDERS HISTORY -->
         <div id="inStoreHistorySection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-charcoal">In-Store Walk-In Order History</h2>
-                    <p class="text-xs text-gray-500">Filter past transactions by timeline.</p>
-                </div>
-                <!-- Timeline Filter Dropdowns -->
-                <div class="flex items-center gap-2 flex-wrap">
-                    <select id="filterYear" onchange="filterInStoreOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
-                        <option value="all">All Years</option>
-                    </select>
-                    <select id="filterMonth" onchange="filterInStoreOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
-                        <option value="all">All Months</option>
-                    </select>
-                    <select id="filterDay" onchange="filterInStoreOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
-                        <option value="all">All Days</option>
-                    </select>
-                </div>
-            </div>
+            <h2 class="text-xl font-bold text-charcoal">In-Store Walk-In Order History</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
@@ -291,8 +252,6 @@
         const SUPER_PIN = "2403";
         const CASHIER_PIN = "5555";
         let adminData = { products: [], orders: [], inStoreOrders: [], consultations: [] };
-        let filteredInStoreOrdersCache = [];
-        let filteredOnlineOrdersCache = [];
 
         function verifyPin(e) {
             e.preventDefault();
@@ -431,62 +390,12 @@
         }
 
         function renderOrdersTable() {
-            const orders = adminData.orders || [];
-            if (orders.length === 0) {
-                document.getElementById('ordersTableBody').innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders recorded yet.</td></tr>`;
-                return;
-            }
-            populateOnlineFilterDropdowns(orders);
-            filterOnlineOrders();
-        }
-
-        function populateOnlineFilterDropdowns(orders) {
-            const years = [...new Set(orders.map(o => new Date(o.createdAt).getFullYear()))].sort((a,b) => b - a);
-            const months = [
-                {val: 0, name: 'January'}, {val: 1, name: 'February'}, {val: 2, name: 'March'}, 
-                {val: 3, name: 'April'}, {val: 4, name: 'May'}, {val: 5, name: 'June'}, 
-                {val: 6, name: 'July'}, {val: 7, name: 'August'}, {val: 8, name: 'September'}, 
-                {val: 9, name: 'October'}, {val: 10, name: 'November'}, {val: 11, name: 'December'}
-            ];
-
-            const yearSelect = document.getElementById('filterOnlineYear');
-            const currentYearVal = yearSelect.value;
-            yearSelect.innerHTML = `<option value="all">All Years</option>` + years.map(y => `<option value="${y}" ${y == currentYearVal ? 'selected' : ''}>${y}</option>`).join('');
-
-            const monthSelect = document.getElementById('filterOnlineMonth');
-            const currentMonthVal = monthSelect.value;
-            monthSelect.innerHTML = `<option value="all">All Months</option>` + months.map(m => `<option value="${m.val}" ${m.val == currentMonthVal ? 'selected' : ''}>${m.name}</option>`).join('');
-
-            const daySelect = document.getElementById('filterOnlineDay');
-            const currentDayVal = daySelect.value;
-            let daysHtml = `<option value="all">All Days</option>`;
-            for (let d = 1; d <= 31; d++) {
-                daysHtml += `<option value="${d}" ${d == currentDayVal ? 'selected' : ''}>Day ${d}</option>`;
-            }
-            daySelect.innerHTML = daysHtml;
-        }
-
-        function filterOnlineOrders() {
-            const orders = adminData.orders || [];
-            const selectedYear = document.getElementById('filterOnlineYear').value;
-            const selectedMonth = document.getElementById('filterOnlineMonth').value;
-            const selectedDay = document.getElementById('filterOnlineDay').value;
-
-            filteredOnlineOrdersCache = orders.filter(o => {
-                const date = new Date(o.createdAt);
-                const yMatch = selectedYear === 'all' || date.getFullYear() == selectedYear;
-                const mMatch = selectedMonth === 'all' || date.getMonth() == selectedMonth;
-                const dMatch = selectedDay === 'all' || date.getDate() == selectedDay;
-                return yMatch && mMatch && dMatch;
-            });
-
             const tbody = document.getElementById('ordersTableBody');
-            if (filteredOnlineOrdersCache.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders found for this selection.</td></tr>`;
+            if (!adminData.orders || adminData.orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders recorded yet.</td></tr>`;
                 return;
             }
-
-            tbody.innerHTML = filteredOnlineOrdersCache.map(o => `
+            tbody.innerHTML = adminData.orders.map(o => `
                 <tr class="hover:bg-gray-50">
                     <td class="py-3 px-4 font-bold text-brand-600">${o.id}</td>
                     <td class="py-3 px-4">${new Date(o.createdAt).toLocaleString()}</td>
@@ -506,62 +415,12 @@
         }
 
         function renderInStoreOrdersTable() {
-            const orders = adminData.inStoreOrders || [];
-            if (orders.length === 0) {
-                document.getElementById('inStoreOrdersTableBody').innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders recorded yet.</td></tr>`;
-                return;
-            }
-            populateInStoreFilterDropdowns(orders);
-            filterInStoreOrders();
-        }
-
-        function populateInStoreFilterDropdowns(orders) {
-            const years = [...new Set(orders.map(o => new Date(o.createdAt).getFullYear()))].sort((a,b) => b - a);
-            const months = [
-                {val: 0, name: 'January'}, {val: 1, name: 'February'}, {val: 2, name: 'March'}, 
-                {val: 3, name: 'April'}, {val: 4, name: 'May'}, {val: 5, name: 'June'}, 
-                {val: 6, name: 'July'}, {val: 7, name: 'August'}, {val: 8, name: 'September'}, 
-                {val: 9, name: 'October'}, {val: 10, name: 'November'}, {val: 11, name: 'December'}
-            ];
-
-            const yearSelect = document.getElementById('filterYear');
-            const currentYearVal = yearSelect.value;
-            yearSelect.innerHTML = `<option value="all">All Years</option>` + years.map(y => `<option value="${y}" ${y == currentYearVal ? 'selected' : ''}>${y}</option>`).join('');
-
-            const monthSelect = document.getElementById('filterMonth');
-            const currentMonthVal = monthSelect.value;
-            monthSelect.innerHTML = `<option value="all">All Months</option>` + months.map(m => `<option value="${m.val}" ${m.val == currentMonthVal ? 'selected' : ''}>${m.name}</option>`).join('');
-
-            const daySelect = document.getElementById('filterDay');
-            const currentDayVal = daySelect.value;
-            let daysHtml = `<option value="all">All Days</option>`;
-            for (let d = 1; d <= 31; d++) {
-                daysHtml += `<option value="${d}" ${d == currentDayVal ? 'selected' : ''}>Day ${d}</option>`;
-            }
-            daySelect.innerHTML = daysHtml;
-        }
-
-        function filterInStoreOrders() {
-            const orders = adminData.inStoreOrders || [];
-            const selectedYear = document.getElementById('filterYear').value;
-            const selectedMonth = document.getElementById('filterMonth').value;
-            const selectedDay = document.getElementById('filterDay').value;
-
-            filteredInStoreOrdersCache = orders.filter(o => {
-                const date = new Date(o.createdAt);
-                const yMatch = selectedYear === 'all' || date.getFullYear() == selectedYear;
-                const mMatch = selectedMonth === 'all' || date.getMonth() == selectedMonth;
-                const dMatch = selectedDay === 'all' || date.getDate() == selectedDay;
-                return yMatch && mMatch && dMatch;
-            });
-
             const tbody = document.getElementById('inStoreOrdersTableBody');
-            if (filteredInStoreOrdersCache.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders found for this selection.</td></tr>`;
+            if (!adminData.inStoreOrders || adminData.inStoreOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No walk-in orders recorded yet.</td></tr>`;
                 return;
             }
-
-            tbody.innerHTML = filteredInStoreOrdersCache.map(o => `
+            tbody.innerHTML = adminData.inStoreOrders.map(o => `
                 <tr class="hover:bg-gray-50">
                     <td class="py-3 px-4 font-bold text-blue-600">${o.id}</td>
                     <td class="py-3 px-4">${new Date(o.createdAt).toLocaleString()}</td>
