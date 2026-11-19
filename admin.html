@@ -205,9 +205,26 @@
             </div>
         </details>
 
-        <!-- ONLINE ORDERS SECTION -->
+        <!-- ONLINE ORDERS SECTION WITH TIMELINE FILTERS -->
         <div id="onlineOrdersSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <h2 class="text-xl font-bold text-charcoal">Online Customer Orders & Verification</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-charcoal">Online Customer Orders & Verification</h2>
+                    <p class="text-xs text-gray-500">Filter online transactions by timeline.</p>
+                </div>
+                <!-- Online Orders Timeline Filter Dropdowns -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <select id="filterOnlineYear" onchange="filterOnlineOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
+                        <option value="all">All Years</option>
+                    </select>
+                    <select id="filterOnlineMonth" onchange="filterOnlineOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
+                        <option value="all">All Months</option>
+                    </select>
+                    <select id="filterOnlineDay" onchange="filterOnlineOrders()" class="text-xs border rounded-xl p-2.5 bg-gray-50 font-bold">
+                        <option value="all">All Days</option>
+                    </select>
+                </div>
+            </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
@@ -275,6 +292,7 @@
         const CASHIER_PIN = "5555";
         let adminData = { products: [], orders: [], inStoreOrders: [], consultations: [] };
         let filteredInStoreOrdersCache = [];
+        let filteredOnlineOrdersCache = [];
 
         function verifyPin(e) {
             e.preventDefault();
@@ -413,12 +431,62 @@
         }
 
         function renderOrdersTable() {
-            const tbody = document.getElementById('ordersTableBody');
-            if (!adminData.orders || adminData.orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders recorded yet.</td></tr>`;
+            const orders = adminData.orders || [];
+            if (orders.length === 0) {
+                document.getElementById('ordersTableBody').innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders recorded yet.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = adminData.orders.map(o => `
+            populateOnlineFilterDropdowns(orders);
+            filterOnlineOrders();
+        }
+
+        function populateOnlineFilterDropdowns(orders) {
+            const years = [...new Set(orders.map(o => new Date(o.createdAt).getFullYear()))].sort((a,b) => b - a);
+            const months = [
+                {val: 0, name: 'January'}, {val: 1, name: 'February'}, {val: 2, name: 'March'}, 
+                {val: 3, name: 'April'}, {val: 4, name: 'May'}, {val: 5, name: 'June'}, 
+                {val: 6, name: 'July'}, {val: 7, name: 'August'}, {val: 8, name: 'September'}, 
+                {val: 9, name: 'October'}, {val: 10, name: 'November'}, {val: 11, name: 'December'}
+            ];
+
+            const yearSelect = document.getElementById('filterOnlineYear');
+            const currentYearVal = yearSelect.value;
+            yearSelect.innerHTML = `<option value="all">All Years</option>` + years.map(y => `<option value="${y}" ${y == currentYearVal ? 'selected' : ''}>${y}</option>`).join('');
+
+            const monthSelect = document.getElementById('filterOnlineMonth');
+            const currentMonthVal = monthSelect.value;
+            monthSelect.innerHTML = `<option value="all">All Months</option>` + months.map(m => `<option value="${m.val}" ${m.val == currentMonthVal ? 'selected' : ''}>${m.name}</option>`).join('');
+
+            const daySelect = document.getElementById('filterOnlineDay');
+            const currentDayVal = daySelect.value;
+            let daysHtml = `<option value="all">All Days</option>`;
+            for (let d = 1; d <= 31; d++) {
+                daysHtml += `<option value="${d}" ${d == currentDayVal ? 'selected' : ''}>Day ${d}</option>`;
+            }
+            daySelect.innerHTML = daysHtml;
+        }
+
+        function filterOnlineOrders() {
+            const orders = adminData.orders || [];
+            const selectedYear = document.getElementById('filterOnlineYear').value;
+            const selectedMonth = document.getElementById('filterOnlineMonth').value;
+            const selectedDay = document.getElementById('filterOnlineDay').value;
+
+            filteredOnlineOrdersCache = orders.filter(o => {
+                const date = new Date(o.createdAt);
+                const yMatch = selectedYear === 'all' || date.getFullYear() == selectedYear;
+                const mMatch = selectedMonth === 'all' || date.getMonth() == selectedMonth;
+                const dMatch = selectedDay === 'all' || date.getDate() == selectedDay;
+                return yMatch && mMatch && dMatch;
+            });
+
+            const tbody = document.getElementById('ordersTableBody');
+            if (filteredOnlineOrdersCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-400">No online orders found for this selection.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredOnlineOrdersCache.map(o => `
                 <tr class="hover:bg-gray-50">
                     <td class="py-3 px-4 font-bold text-brand-600">${o.id}</td>
                     <td class="py-3 px-4">${new Date(o.createdAt).toLocaleString()}</td>
