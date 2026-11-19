@@ -170,17 +170,22 @@
             </form>
         </div>
 
-        <!-- CATALOG INVENTORY TABLE & STOCK MANAGEMENT -->
-        <div id="catalogSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 class="text-xl font-bold text-charcoal">Catalog Inventory & Stock Management</h2>
-                <div class="relative w-full sm:w-72">
+        <!-- FOLDABLE CATALOG INVENTORY TABLE & STOCK MANAGEMENT -->
+        <details id="catalogSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4 group" open>
+            <summary class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer list-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 text-brand-500 flex items-center justify-center text-sm transition-transform group-open:rotate-90">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-charcoal">Catalog Inventory & Stock Management</h2>
+                </div>
+                <div class="relative w-full sm:w-72" onclick="event.stopPropagation()">
                     <input type="text" id="adminSearchInput" oninput="renderProductsTable()" placeholder="Search catalog items..." 
                            class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-brand-500">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
                 </div>
-            </div>
-            <div class="overflow-x-auto">
+            </summary>
+            <div class="overflow-x-auto pt-2">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="bg-gray-50 text-gray-700 uppercase font-extrabold border-b">
                         <tr>
@@ -198,7 +203,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </details>
 
         <!-- ONLINE ORDERS SECTION -->
         <div id="onlineOrdersSection" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
