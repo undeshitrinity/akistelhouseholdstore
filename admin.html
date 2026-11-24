@@ -115,7 +115,14 @@
                 </div>
 
                 <div class="border rounded-2xl p-4 bg-gray-50 space-y-3">
-                    <h3 class="text-xs font-extrabold uppercase text-gray-600">Select Products & Quantities for Walk-In Sale</h3>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-xs font-extrabold uppercase text-gray-600">Select Products & Quantities for Walk-In Sale</h3>
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="walkInProductSearch" oninput="filterWalkInProductSelects()" placeholder="Search walk-in items..."
+                                   class="w-full bg-white border border-gray-200 rounded-xl py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-brand-500">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-gray-400 text-xs"></i>
+                        </div>
+                    </div>
                     <div id="walkInItemsList" class="space-y-2 max-h-48 overflow-y-auto"></div>
                     <button type="button" onclick="addWalkInItemRow()" class="text-xs font-bold text-brand-600 hover:text-brand-700">+ Add Another Item</button>
                 </div>
@@ -574,12 +581,37 @@
             `).join('');
         }
 
+        function buildWalkInProductOptions(selectedId = '') {
+            const query = (document.getElementById('walkInProductSearch')?.value || '').toLowerCase().trim();
+            const matches = adminData.products.filter(p =>
+                p.name.toLowerCase().includes(query) ||
+                (p.category && p.category.toLowerCase().includes(query)) ||
+                String(p.id) === String(selectedId)
+            );
+
+            if (matches.length === 0) {
+                return `<option value="" disabled selected>No matching products</option>`;
+            }
+
+            return matches.map(p => {
+                const isSelected = String(p.id) === String(selectedId) ? 'selected' : '';
+                return `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}" ${isSelected}>${p.name} (₦${p.price.toLocaleString()} - Stock: ${p.stock})</option>`;
+            }).join('');
+        }
+
+        function filterWalkInProductSelects() {
+            document.querySelectorAll('.walk-in-row .walk-in-product').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = buildWalkInProductOptions(currentVal);
+            });
+        }
+
         function initWalkInItemRow() {
             const container = document.getElementById('walkInItemsList');
             container.innerHTML = `
                 <div class="flex items-center gap-2 walk-in-row">
                     <select class="flex-1 text-xs p-2.5 border rounded-xl walk-in-product">
-                        ${adminData.products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (₦${p.price.toLocaleString()} - Stock: ${p.stock})</option>`).join('')}
+                        ${buildWalkInProductOptions()}
                     </select>
                     <input type="number" min="1" value="1" class="w-20 text-xs p-2.5 border rounded-xl walk-in-qty">
                     <button type="button" onclick="this.parentElement.remove()" class="text-red-500 px-2"><i class="fa-solid fa-xmark"></i></button>
@@ -593,7 +625,7 @@
             row.className = "flex items-center gap-2 walk-in-row mt-2";
             row.innerHTML = `
                 <select class="flex-1 text-xs p-2.5 border rounded-xl walk-in-product">
-                    ${adminData.products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (₦${p.price.toLocaleString()} - Stock: ${p.stock})</option>`).join('')}
+                    ${buildWalkInProductOptions()}
                 </select>
                 <input type="number" min="1" value="1" class="w-20 text-xs p-2.5 border rounded-xl walk-in-qty">
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-500 px-2"><i class="fa-solid fa-xmark"></i></button>
@@ -619,6 +651,11 @@
                 const prodId = select.value;
                 const qty = Number(qtyInput.value);
                 const option = select.selectedOptions[0];
+
+                if (!prodId || !option || option.disabled) {
+                    continue;
+                }
+
                 const price = Number(option.getAttribute('data-price'));
                 const stock = Number(option.getAttribute('data-stock'));
                 const name = option.text.split(' (')[0];
@@ -630,6 +667,11 @@
 
                 items.push({ id: prodId, name, price, qty, img: '' });
                 totalAmount += price * qty;
+            }
+
+            if (items.length === 0) {
+                alert('Please select at least one valid product for the walk-in order.');
+                return;
             }
 
             try {
